@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv" // Import strconv for string-to-int conversion
 
 	"containerGO/commands"
 	"containerGO/utils"
@@ -28,6 +29,46 @@ func main() {
 			return
 		}
 		fmt.Println("Root filesystem extracted successfully!")
+
+	case "resume":
+		if len(os.Args) < 3 {
+			fmt.Println("Error: pause requires a PID")
+			os.Exit(1)
+		}
+		// Convert string PID to int
+		pid, err := strconv.Atoi(os.Args[2]) // Convert string to int
+		if err != nil {
+			fmt.Println("Error: invalid PID format")
+			os.Exit(1)
+		}
+		commands.Resume(pid)
+
+	case "pause":
+		if len(os.Args) < 3 {
+			fmt.Println("Error: pause requires a PID")
+			os.Exit(1)
+		}
+		// Convert string PID to int
+		pid, err := strconv.Atoi(os.Args[2]) // Convert string to int
+		if err != nil {
+			fmt.Println("Error: invalid PID format")
+			os.Exit(1)
+		}
+		commands.Pause(pid) // Pass the PID as int
+
+	case "stop":
+		if len(os.Args) < 3 {
+			fmt.Println("Error: stop requires a PID")
+			os.Exit(1)
+		}
+		// Convert string PID to int
+		pid, err := strconv.Atoi(os.Args[2]) // Convert string to int
+		if err != nil {
+			fmt.Println("Error: invalid PID format")
+			os.Exit(1)
+		}
+		commands.Stop(pid) // Pass the PID as int
+
 	default:
 		fmt.Println("Invalid command")
 	}

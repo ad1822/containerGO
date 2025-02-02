@@ -15,14 +15,12 @@ import (
 	"github.com/opencontainers/go-digest"
 )
 
-// Manifest represents the OCI image manifest
 type Manifest struct {
 	Layers []struct {
 		Digest string `json:"digest"`
 	} `json:"layers"`
 }
 
-// ExtractRootFS extracts the root filesystem from the pulled image
 func ExtractRootFS(imagePath, extractTo string) error {
 	ref, err := layout.ParseReference(imagePath)
 	fmt.Println("Ref : ", ref)
@@ -37,38 +35,31 @@ func ExtractRootFS(imagePath, extractTo string) error {
 	}
 	defer imgSrc.Close()
 
-	// Get the raw manifest JSON
 	manifestBytes, _, err := imgSrc.GetManifest(context.Background(), nil)
 	fmt.Println("Manifest Bytes : ", manifestBytes)
 	if err != nil {
 		return fmt.Errorf("failed to get manifest: %v", err)
 	}
 
-	// Unmarshal the JSON into the Manifest struct
 	var manifest Manifest
 	if err := json.Unmarshal(manifestBytes, &manifest); err != nil {
 		return fmt.Errorf("failed to parse manifest: %v", err)
 	}
 
-	// Ensure the extraction directory exists
 	if err := os.MkdirAll(extractTo, 0755); err != nil {
 		return fmt.Errorf("failed to create extraction directory: %v", err)
 	}
 
-	// Extract layers (root filesystem)
 	for _, layer := range manifest.Layers {
 		fmt.Println("Extracting layer:", layer.Digest)
 
-		// Convert string to digest.Digest
 		layerDigest := digest.Digest(layer.Digest)
 
-		// Get layer content
 		layerReader, _, err := imgSrc.GetBlob(context.Background(), types.BlobInfo{Digest: layerDigest}, nil)
 		if err != nil {
 			return fmt.Errorf("failed to get layer: %v", err)
 		}
 
-		// Decompress and extract the tarball
 		err = extractCompressedTar(layerReader, extractTo)
 		if err != nil {
 			return fmt.Errorf("failed to extract layer: %v", err)
@@ -79,12 +70,9 @@ func ExtractRootFS(imagePath, extractTo string) error {
 	return nil
 }
 
-// extractCompressedTar decompresses a gzipped tar archive before extracting
 func extractCompressedTar(reader io.Reader, dest string) error {
-	// Try to decompress the layer
 	gzipReader, err := gzip.NewReader(reader)
 	if err != nil {
-		// If it's not gzip, assume it's a raw tar
 		fmt.Println("Layer is not compressed, extracting directly")
 		return extractTar(reader, dest)
 	}
@@ -94,7 +82,6 @@ func extractCompressedTar(reader io.Reader, dest string) error {
 	return extractTar(gzipReader, dest)
 }
 
-// extractTar extracts a tar archive to the specified directory
 func extractTar(reader io.Reader, dest string) error {
 	tarReader := tar.NewReader(reader)
 

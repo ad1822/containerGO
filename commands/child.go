@@ -52,7 +52,7 @@ func Child(args []string) {
 	cmd.Stderr = os.Stderr
 	utils.Must(cmd.Run())
 
-	// Cleanup()
+	Cleanup()
 
 	// fmt.Println("Cleaning up container ... ")
 
