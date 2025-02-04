@@ -3,40 +3,66 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv" // Import strconv for string-to-int conversion
+	"strconv"
 
 	"containerGO/commands"
 	"containerGO/utils"
 )
 
 func main() {
-	// if len(os.Args) < 3 {
-	// 	fmt.Println("Usage: go run main.go run [--bind /host/path:/container/path] <command>")
-	// 	return
-	// }
+	if len(os.Args) < 2 {
+		fmt.Println("Usage: go run main.go <command> [args...]")
+		os.Exit(1)
+	}
 
 	switch os.Args[1] {
 	case "run":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: run <command>")
+			os.Exit(1)
+		}
 		commands.Run(os.Args[2:])
+
 	case "child":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: child <command>")
+			os.Exit(1)
+		}
 		commands.Child(os.Args[2:])
+
 	case "pull":
-		commands.PullImage("archlinux")
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: pull <image-name>")
+			os.Exit(1)
+		}
+		err := commands.PullImage(os.Args[2])
+		if err != nil {
+			fmt.Println("Error pulling image:", err)
+			os.Exit(1)
+		}
+
 	case "extract":
-		err := utils.ExtractRootFS("/home/arcadian/Downloads/archlinux", "/home/arcadian/Downloads/archRootfs")
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: extract <image-name>")
+			os.Exit(1)
+		}
+		imageName := os.Args[2]
+		srcPath := fmt.Sprintf("/home/arcadian/Downloads/ContainerGO/Images/%s", imageName)
+		destPath := fmt.Sprintf("/home/arcadian/Downloads/ContainerGO/ExtractImage/%s", imageName)
+
+		err := utils.ExtractRootFS(srcPath, destPath)
 		if err != nil {
 			fmt.Println("Error extracting rootfs:", err)
-			return
+			os.Exit(1)
 		}
 		fmt.Println("Root filesystem extracted successfully!")
 
 	case "resume":
 		if len(os.Args) < 3 {
-			fmt.Println("Error: pause requires a PID")
+			fmt.Println("Error: resume requires a PID")
 			os.Exit(1)
 		}
-		// Convert string PID to int
-		pid, err := strconv.Atoi(os.Args[2]) // Convert string to int
+		pid, err := strconv.Atoi(os.Args[2])
 		if err != nil {
 			fmt.Println("Error: invalid PID format")
 			os.Exit(1)
@@ -48,28 +74,27 @@ func main() {
 			fmt.Println("Error: pause requires a PID")
 			os.Exit(1)
 		}
-		// Convert string PID to int
-		pid, err := strconv.Atoi(os.Args[2]) // Convert string to int
+		pid, err := strconv.Atoi(os.Args[2])
 		if err != nil {
 			fmt.Println("Error: invalid PID format")
 			os.Exit(1)
 		}
-		commands.Pause(pid) // Pass the PID as int
+		commands.Pause(pid)
 
 	case "stop":
 		if len(os.Args) < 3 {
 			fmt.Println("Error: stop requires a PID")
 			os.Exit(1)
 		}
-		// Convert string PID to int
-		pid, err := strconv.Atoi(os.Args[2]) // Convert string to int
+		pid, err := strconv.Atoi(os.Args[2])
 		if err != nil {
 			fmt.Println("Error: invalid PID format")
 			os.Exit(1)
 		}
-		commands.Stop(pid) // Pass the PID as int
+		commands.Stop(pid)
 
 	default:
 		fmt.Println("Invalid command")
+		os.Exit(1)
 	}
 }

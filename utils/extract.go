@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/containers/image/v5/oci/layout"
 	"github.com/containers/image/v5/types"
@@ -23,20 +24,17 @@ type Manifest struct {
 
 func ExtractRootFS(imagePath, extractTo string) error {
 	ref, err := layout.ParseReference(imagePath)
-	fmt.Println("Ref : ", ref)
 	if err != nil {
 		return fmt.Errorf("failed to parse OCI image: %v", err)
 	}
 
 	imgSrc, err := ref.NewImageSource(context.Background(), &types.SystemContext{})
-	fmt.Println("Image Source", imgSrc)
 	if err != nil {
 		return fmt.Errorf("failed to get image source: %v", err)
 	}
 	defer imgSrc.Close()
 
 	manifestBytes, _, err := imgSrc.GetManifest(context.Background(), nil)
-	fmt.Println("Manifest Bytes : ", manifestBytes)
 	if err != nil {
 		return fmt.Errorf("failed to get manifest: %v", err)
 	}
@@ -46,15 +44,17 @@ func ExtractRootFS(imagePath, extractTo string) error {
 		return fmt.Errorf("failed to parse manifest: %v", err)
 	}
 
+	// Ensure extraction directory exists
 	if err := os.MkdirAll(extractTo, 0755); err != nil {
 		return fmt.Errorf("failed to create extraction directory: %v", err)
 	}
 
-	for _, layer := range manifest.Layers {
+	// Extract layers in correct order (Base → Latest)
+	for i := len(manifest.Layers) - 1; i >= 0; i-- {
+		layer := manifest.Layers[i]
 		fmt.Println("Extracting layer:", layer.Digest)
 
 		layerDigest := digest.Digest(layer.Digest)
-
 		layerReader, _, err := imgSrc.GetBlob(context.Background(), types.BlobInfo{Digest: layerDigest}, nil)
 		if err != nil {
 			return fmt.Errorf("failed to get layer: %v", err)
@@ -102,6 +102,15 @@ func extractTar(reader io.Reader, dest string) error {
 				return err
 			}
 		case tar.TypeReg:
+			// Handle whiteout files (deleting files from previous layers)
+			if strings.HasPrefix(filepath.Base(header.Name), ".wh.") {
+				toRemove := filepath.Join(dest, strings.TrimPrefix(header.Name, ".wh."))
+				if err := os.RemoveAll(toRemove); err != nil {
+					return err
+				}
+				continue
+			}
+
 			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
 				return err
 			}
@@ -114,6 +123,10 @@ func extractTar(reader io.Reader, dest string) error {
 				return err
 			}
 			outFile.Close()
+		case tar.TypeSymlink:
+			if err := os.Symlink(header.Linkname, target); err != nil {
+				return err
+			}
 		}
 	}
 	return nil

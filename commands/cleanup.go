@@ -3,10 +3,12 @@ package commands
 import (
 	"fmt"
 	"syscall"
+
+	"github.com/charmbracelet/log"
 )
 
 func Cleanup() {
-	fmt.Println("Cleaning up container ... ")
+	log.Info("Cleaning up container ... ")
 
 	if err := syscall.Unmount("/proc", 0); err != nil {
 		fmt.Printf("Warning: Failed to unmount /proc: %v\n", err)
@@ -21,7 +23,7 @@ func Cleanup() {
 	// removeDirectoryContents(config.LowerDir)
 	// removeDirectoryContents(config.WorkDir)
 
-	fmt.Println("Cleanup complete.")
+	log.Info("Cleanup complete.")
 }
 
 // func removeDirectoryContents(dir string) {

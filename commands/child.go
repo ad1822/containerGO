@@ -1,68 +1,57 @@
 package commands
 
 import (
-	"fmt"
-	"os"
-	"os/exec"
-	"syscall"
-
-	"containerGO/config"
 	"containerGO/mount"
 	"containerGO/utils"
+	"fmt"
+	"os"
+	"path/filepath"
+	"syscall"
 )
 
+// Child executes a new process inside the isolated environment
 func Child(args []string) {
-	fmt.Printf("Running %v as pid %d child\n", args, os.Getpid())
+	if len(args) < 3 {
+		fmt.Println("Usage: child <container-path> <image-name> <command>")
+		os.Exit(1)
+	}
 
-	// utils.CheckDirectories()
+	containerPath := args[0]
+	imageName := args[1] // The image name is passed as the second argument
+	rootfs := filepath.Join(containerPath, "merged")
 
-	// Mount OverlayFS
-	mount.MountOverlayFS()
+	// Construct the lowerDir path based on the image name (this can be modified as needed)
+	lowerDir := filepath.Join("/home/arcadian/Downloads/ContainerGO/ExtractImage", imageName)
 
-	// Apply bind mounts
-	// bindMounts := os.Getenv("BIND_MOUNTS")
-	// if bindMounts != "" {
-	// 	for _, bindM := range strings.Split(bindMounts, ",") {
-	// 		parts := strings.Split(bindM, ":")
-	// 		if len(parts) != 2 {
-	// 			fmt.Printf("Invalid bind mount format: %s\n", bindM)
-	// 			continue
-	// 		}
-	// 		mount.BindMount(parts[0], filepath.Join(config.MergedDir, parts[1]))
-	// 	}
-	// }
-
-	// Set hostname
 	utils.Must(syscall.Sethostname([]byte("container")))
 
-	// Chroot and execute command
-	if err := syscall.Chroot(config.MergedDir); err != nil {
-		fmt.Println("Merged Dir Error")
+	// Ensure OverlayFS is mounted before changing root
+	err := mount.MountOverlayFS(containerPath, lowerDir)
+	if err != nil {
+		fmt.Println("Error mounting OverlayFS:", err)
+		os.Exit(1)
 	}
-	// utils.Must(syscall.Chroot(config.MergedDir))
-	if err := syscall.Chdir("/"); err != nil {
-		fmt.Println("Chdir error")
+
+	// Change root to the new filesystem
+	if err := syscall.Chroot(rootfs); err != nil {
+		fmt.Println("Error changing root:", err)
+		os.Exit(1)
 	}
-	// utils.Must(syscall.Chdir("/"))
-	// utils.Must(syscall.Mount("proc", "proc", "proc", 0, ""))
 
-	cmd := exec.Command(args[0], args[1:]...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	utils.Must(cmd.Run())
+	// Change working directory to new root
+	if err := os.Chdir("/"); err != nil {
+		fmt.Println("Error changing directory:", err)
+		os.Exit(1)
+	}
 
-	Cleanup()
+	utils.Must(syscall.Mount("proc", "proc", "proc", 0, ""))
 
-	// fmt.Println("Cleaning up container ... ")
+	command := args[2:]
 
-	// if err := syscall.Unmount("/proc", 0); err != nil {
-	// 	fmt.Printf("Warning: Failed to unmount /proc: %v\n", err)
-	// }
-
-	// if err := syscall.Unmount(config.MergedDir, 0); err != nil {
-	// 	fmt.Printf("Warning: Failed to unmount OverlayFS: %v\n", err)
-	// }
-
-	// fmt.Println("Cleanup complete.")
+	// Execute command inside container
+	err = syscall.Exec(command[0], command, os.Environ())
+	if err != nil {
+		fmt.Println("Error executing command inside container:", err)
+		os.Exit(1)
+	}
 }

@@ -1,38 +1,24 @@
 package mount
 
 import (
-	"containerGO/config"
 	"fmt"
-	"os"
+	"path/filepath"
 	"syscall"
 )
 
-// func MountOverlayFS() {
-// 	err := syscall.Mount("overlay", config.MergedDir, "overlay", 0,
-// 		fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s", config.LowerDir, config.UpperDir, config.WorkDir))
-// 	if err != nil {
-// 		fmt.Printf("Error mounting OverlayFS: %v\n", err)
-// 		return
-// 	}
-// 	fmt.Println("OverlayFS mounted successfully")
-// }
+// MountOverlayFS mounts the OverlayFS for the container
+func MountOverlayFS(containerPath, lowerDir string) error {
+	// Define directories for OverlayFS
+	rootfs := filepath.Join(containerPath, "merged")
+	upperDir := filepath.Join(containerPath, "upper")
+	workDir := filepath.Join(containerPath, "work")
 
-func MountOverlayFS() {
-
-	dirs := []string{config.LowerDir, config.UpperDir, config.WorkDir}
-	for _, dir := range dirs {
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			fmt.Println("Error creating directory:", err)
-			return
-		}
+	// Mount the OverlayFS
+	err := syscall.Mount("overlay", rootfs, "overlay", 0, fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s", lowerDir, upperDir, workDir))
+	if err != nil {
+		return fmt.Errorf("error mounting overlay filesystem: %v", err)
 	}
 
-	options := fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s", config.LowerDir, config.UpperDir, config.WorkDir)
-
-	if err := syscall.Mount("overlay", config.MergedDir, "overlay", 0, options); err != nil {
-		fmt.Println("Error mounting OverlayFS:", err)
-		return
-	}
-
-	fmt.Println("OverlayFS mounted successfully at", config.MergedDir)
+	fmt.Println("OverlayFS mounted successfully at", rootfs)
+	return nil
 }
