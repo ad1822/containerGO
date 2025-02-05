@@ -8,11 +8,14 @@ import (
 	"syscall"
 
 	"containerGO/utils"
+
+	"github.com/fatih/color"
 )
 
 const containerBaseDir = "/home/arcadian/Downloads/ContainerGO/Containers/"
 
 func SetUpDir(containerName string) {
+
 	containerPath := filepath.Join(containerBaseDir, containerName)
 	err := os.MkdirAll(containerPath, 0755)
 	if err != nil {
@@ -21,7 +24,7 @@ func SetUpDir(containerName string) {
 	}
 
 	// Setup OverlayFS directories
-	overlayDirs := []string{"work", "merged", "base", "upper"}
+	overlayDirs := []string{"work", "merged", "upper"}
 	for _, dir := range overlayDirs {
 		err := os.MkdirAll(filepath.Join(containerPath, dir), 0755)
 		if err != nil {
@@ -36,6 +39,8 @@ func Run(args []string) {
 		fmt.Println("Usage: run --name <container-name> <image-name> <command>")
 		os.Exit(1)
 	}
+
+	utils.Logger(color.FgHiBlue, "🐳 Running a New Container")
 
 	var containerName, imageName string
 	var filteredArgs []string
@@ -69,14 +74,16 @@ func Run(args []string) {
 
 	SetUpDir(containerName)
 
-	// Create the child process with the image name passed in the arguments
+	utils.Logger(color.FgGreen, fmt.Sprintf("✅ Process (PID: %v) is running on the host machine.", os.Getpid()))
+
 	cmd := exec.Command("/proc/self/exe", append([]string{"child", containerPath, imageName}, filteredArgs...)...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS | syscall.CLONE_NEWUSER | syscall.CLONE_NEWNET,
-		Credential: &syscall.Credential{Uid: 0, Gid: 0},
+		Cloneflags:   syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWUSER | syscall.CLONE_NEWNET,
+		Unshareflags: syscall.CLONE_NEWNS,
+		Credential:   &syscall.Credential{Uid: 0, Gid: 0},
 		UidMappings: []syscall.SysProcIDMap{
 			{ContainerID: 0, HostID: os.Geteuid(), Size: 1},
 		},
@@ -84,6 +91,5 @@ func Run(args []string) {
 			{ContainerID: 0, HostID: os.Getegid(), Size: 1},
 		},
 	}
-	fmt.Println("RUN")
 	utils.Must(cmd.Run())
 }

@@ -1,9 +1,12 @@
 package mount
 
 import (
+	"containerGO/utils"
 	"fmt"
 	"path/filepath"
 	"syscall"
+
+	"github.com/fatih/color"
 )
 
 // MountOverlayFS mounts the OverlayFS for the container
@@ -19,6 +22,8 @@ func MountOverlayFS(containerPath, lowerDir string) error {
 		return fmt.Errorf("error mounting overlay filesystem: %v", err)
 	}
 
-	fmt.Println("OverlayFS mounted successfully at", rootfs)
+	utils.Logger(color.FgBlue, "OverlayFs mounted Successfully")
+
+	// fmt.Println("OverlayFS mounted successfully at", rootfs)
 	return nil
 }
