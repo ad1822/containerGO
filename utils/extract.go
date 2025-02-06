@@ -9,7 +9,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/containers/image/v5/oci/layout"
 	"github.com/containers/image/v5/types"
@@ -50,7 +49,7 @@ func ExtractRootFS(imagePath, extractTo string) error {
 	}
 
 	// Extract layers in correct order (Base → Latest)
-	for i := len(manifest.Layers) - 1; i >= 0; i-- {
+	for i := 0; i < len(manifest.Layers); i++ { // Fix: Extract from base to latest
 		layer := manifest.Layers[i]
 		fmt.Println("Extracting layer:", layer.Digest)
 
@@ -98,23 +97,18 @@ func extractTar(reader io.Reader, dest string) error {
 
 		switch header.Typeflag {
 		case tar.TypeDir:
-			if err := os.MkdirAll(target, 0755); err != nil {
+			if err := os.MkdirAll(target, os.FileMode(header.Mode)); err != nil {
 				return err
 			}
-		case tar.TypeReg:
-			// Handle whiteout files (deleting files from previous layers)
-			if strings.HasPrefix(filepath.Base(header.Name), ".wh.") {
-				toRemove := filepath.Join(dest, strings.TrimPrefix(header.Name, ".wh."))
-				if err := os.RemoveAll(toRemove); err != nil {
-					return err
-				}
-				continue
-			}
+			// ✅ Ensure correct permissions
+			_ = os.Chown(target, header.Uid, header.Gid)
+			_ = os.Chmod(target, os.FileMode(header.Mode))
 
+		case tar.TypeReg:
 			if err := os.MkdirAll(filepath.Dir(target), 0755); err != nil {
 				return err
 			}
-			outFile, err := os.Create(target)
+			outFile, err := os.OpenFile(target, os.O_CREATE|os.O_WRONLY, os.FileMode(header.Mode))
 			if err != nil {
 				return err
 			}
@@ -123,9 +117,17 @@ func extractTar(reader io.Reader, dest string) error {
 				return err
 			}
 			outFile.Close()
+
+			// ✅ Set correct file permissions
+			_ = os.Chown(target, header.Uid, header.Gid)
+			_ = os.Chmod(target, os.FileMode(header.Mode))
+
 		case tar.TypeSymlink:
+			if _, err := os.Lstat(target); err == nil {
+				_ = os.RemoveAll(target) // ✅ Remove existing file or directory if it conflicts
+			}
 			if err := os.Symlink(header.Linkname, target); err != nil {
-				return err
+				return fmt.Errorf("failed to create symlink %s -> %s: %v", target, header.Linkname, err)
 			}
 		}
 	}

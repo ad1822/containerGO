@@ -6,11 +6,18 @@ import (
 	"syscall"
 )
 
-func Resume(pid int) {
-	err := syscall.Kill(pid, syscall.SIGCONT)
+// Resume resumes a paused container process
+func Resume(pid int) error {
+	childPid, err := getChildPID(pid)
 	if err != nil {
-		fmt.Printf("Error resuming process with PID %d: %s\n", pid, err)
+		return fmt.Errorf("error finding child process for PID %d: %v", pid, err)
+	}
+
+	if err := syscall.Kill(childPid, syscall.SIGCONT); err != nil {
+		fmt.Printf("Error resuming process with PID %d: %v\n", childPid, err)
 		os.Exit(1)
 	}
-	fmt.Printf("Process with PID %d resumed successfully.\n", pid)
+
+	fmt.Printf("Process with PID %d resumed successfully.\n", childPid)
+	return nil
 }
