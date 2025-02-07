@@ -91,5 +91,13 @@ func Run(args []string) {
 			{ContainerID: 0, HostID: os.Getegid(), Size: 1},
 		},
 	}
+
 	utils.Must(cmd.Run())
+	// pid := cmd.Process.Pid
+	// fmt.Println("Started process with PID:", pid)
+
+	// if err := utils.CreateCgroup("my_container", pid); err != nil {
+		// fmt.Println("Failed to create cgroup:", err)
+		// os.Exit(1)
+	}
 }
