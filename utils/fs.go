@@ -5,16 +5,26 @@ import (
 	"os"
 )
 
+// CheckDirectories ensures required directories exist, creating them if necessary.
 func CheckDirectories() {
-	fmt.Println("Checking required directories...")
-	for _, dir := range []string{"/home/arcadian/containerfs/layers/base",
-		"/home/arcadian/containerfs/layers/container",
-		"/home/arcadian/containerfs/layers/work",
-		"/home/arcadian/containerfs/layers/merged"} {
+	// fmt.Println("Checking required directories...")
 
+	dirs := []string{
+		"/home/arcadian/Downloads/ContainerGO/Containers/",
+		"/home/arcadian/Downloads/ContainerGO/Images/",
+		"/home/arcadian/Downloads/ContainerGO/ExtractImages/",
+	}
+
+	for _, dir := range dirs {
 		if _, err := os.Stat(dir); os.IsNotExist(err) {
-			fmt.Printf("Warning: Directory %s does not exist!\n", dir)
+			fmt.Printf("Directory %s does not exist! Creating it...\n", dir)
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				fmt.Printf("Error creating directory %s: %v\n", dir, err)
+			} else {
+				fmt.Printf("Directory %s created successfully.\n", dir)
+			}
 		}
 	}
-	fmt.Println("Directory check complete.")
+
+	// fmt.Println("Directory check complete.")
 }

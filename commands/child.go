@@ -24,7 +24,7 @@ func Child(args []string) {
 	imageName := args[1]
 	rootfs := filepath.Join(containerPath, "merged")
 
-	lowerDir := filepath.Join("/home/arcadian/Downloads/ContainerGO/ExtractImage", imageName)
+	lowerDir := filepath.Join("/home/arcadian/Downloads/ContainerGO/ExtractImages", imageName)
 
 	utils.Must(syscall.Sethostname([]byte("container")))
 

@@ -97,7 +97,7 @@ func Run(args []string) {
 	// fmt.Println("Started process with PID:", pid)
 
 	// if err := utils.CreateCgroup("my_container", pid); err != nil {
-		// fmt.Println("Failed to create cgroup:", err)
-		// os.Exit(1)
-	}
+	// fmt.Println("Failed to create cgroup:", err)
+	// os.Exit(1)
+
 }

@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	utils.CheckDirectories()
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run main.go <command> [args...]")
 		os.Exit(1)
@@ -48,7 +49,7 @@ func main() {
 		}
 		imageName := os.Args[2]
 		srcPath := fmt.Sprintf("/home/arcadian/Downloads/ContainerGO/Images/%s", imageName)
-		destPath := fmt.Sprintf("/home/arcadian/Downloads/ContainerGO/ExtractImage/%s", imageName)
+		destPath := fmt.Sprintf("/home/arcadian/Downloads/ContainerGO/ExtractImages/%s", imageName)
 
 		err := utils.ExtractRootFS(srcPath, destPath)
 		if err != nil {
