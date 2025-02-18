@@ -4,6 +4,7 @@ go 1.23.5
 
 require (
 	github.com/containers/image/v5 v5.34.0
+	github.com/creack/pty v1.1.24
 	github.com/fatih/color v1.18.0
 	github.com/opencontainers/go-digest v1.0.0
 	github.com/spf13/cobra v1.8.1

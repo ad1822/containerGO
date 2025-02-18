@@ -1,30 +1,33 @@
 package cmd
 
 import (
-	"fmt"
-
 	"containerGO/internal/commands"
 
 	"github.com/spf13/cobra"
 )
 
+var (
+	containerName string
+	bindMounts    []string
+)
+
 var runCmd = &cobra.Command{
 	Use:   "run [flags] <image-name> <command>",
-	Short: "Run a command in a new container",
-	Args:  cobra.MinimumNArgs(2), // Ensure at least 2 arguments are provided
+	Short: "Run a new container",
+	Args:  cobra.MinimumNArgs(2), // Requires at least image-name and command
 	Run: func(cmd *cobra.Command, args []string) {
-		containerName, _ := cmd.Flags().GetString("name")
-		if containerName == "" {
-			fmt.Println("Error: --name flag is required")
-			return
-		}
+		imageName := args[0]
+		commandArgs := args[1:]
 
-		// Pass the container name, image name, and command arguments to the Run function
-		commands.Run(containerName, args[0], args[1:])
+		// Call your Run function with the bind mounts
+		commands.Run(containerName, imageName, commandArgs, bindMounts)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(runCmd)
-	runCmd.Flags().StringP("name", "n", "", "Name of the container")
+
+	// Add the --bind flag
+	runCmd.Flags().StringSliceVarP(&bindMounts, "bind", "b", []string{}, "Bind mount a host directory into the container (format: /host/path:/container/path)")
+	runCmd.Flags().StringVarP(&containerName, "name", "n", "", "Name of the container")
 }

@@ -1,0 +1,12 @@
+✅ Container process started successfully! (PID: 1)
+OverlayFs mounted Successfully
+Command: [/usr/local/bin/node]
+Welcome to Node.js v23.8.0.
+Type ".help" for more information.
+> 3
+> Uncaught ReferenceError: clear is not defined
+> Uncaught ReferenceError: ls is not defined
+> Uncaught ReferenceError: node is not defined
+> Uncaught ReferenceError: npm is not defined
+> 4
+> 

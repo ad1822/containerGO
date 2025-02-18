@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"syscall"
 
 	"github.com/fatih/color"
@@ -25,7 +26,6 @@ func Child(args []string) {
 
 	baseDir := utils.GetContainerBaseDir("ExtractImages")
 	lowerDir := filepath.Join(baseDir, imageName)
-	// lowerDir := filepath.Join("/home/arcadian/Downloads/ContainerGO/ExtractImages", imageName)
 
 	utils.Must(syscall.Sethostname([]byte("container")))
 
@@ -33,6 +33,25 @@ func Child(args []string) {
 	if err != nil {
 		fmt.Println("Error mounting OverlayFS:", err)
 		os.Exit(1)
+	}
+	bindMounts := os.Getenv("BIND_MOUNTS")
+	if bindMounts != "" {
+		for _, bindM := range strings.Split(bindMounts, ",") {
+			parts := strings.Split(bindM, ":")
+			if len(parts) < 2 || len(parts) > 3 {
+				utils.Logger(color.FgRed, fmt.Sprintf("Invalid bind mount format: %s", bindM))
+				continue
+			}
+
+			readOnly := false
+			if len(parts) == 3 && parts[2] == "ro" {
+				readOnly = true
+			}
+
+			if err := mount.BindMount(parts[0], filepath.Join(rootfs, parts[1]), readOnly); err != nil {
+				utils.Logger(color.FgRed, fmt.Sprintf("Failed to bind mount: %v", err))
+			}
+		}
 	}
 
 	if err := syscall.Chroot(rootfs); err != nil {

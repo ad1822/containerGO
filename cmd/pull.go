@@ -18,7 +18,7 @@ var pullCmd = &cobra.Command{
 			fmt.Println("Error pulling image:", err)
 			return
 		}
-		fmt.Println("Image pulled successfully!")
+		// fmt.Println("Image pulled successfully!")
 	},
 }
 

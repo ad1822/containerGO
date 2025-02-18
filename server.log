@@ -1,0 +1,50 @@
+✅ Container process started successfully! (PID: 1)
+OverlayFs mounted Successfully
+Command: [/bin/bash]
+bin
+boot
+dev
+etc
+home
+lib
+lib64
+media
+mnt
+opt
+proc
+root
+run
+sbin
+srv
+sys
+tmp
+usr
+var
+[H[J/bin/bash: line 3: $'\Ehostname': command not found
+container
+[32m✅ Container process started successfully! (PID: 52508)[0m
+2025/02/18 09:35:29 Fatal error: operation not permitted
+✅ Container process started successfully! (PID: 1)
+OverlayFs mounted Successfully
+Command: [/bin/bash]
+bin
+boot
+dev
+etc
+home
+lib
+lib64
+media
+mnt
+opt
+proc
+root
+run
+sbin
+srv
+sys
+tmp
+usr
+var
+[H[J[32m✅ Container process started successfully! (PID: 60932)[0m
+2025/02/18 09:37:46 Fatal error: operation not permitted
