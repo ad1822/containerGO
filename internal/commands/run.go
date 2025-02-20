@@ -3,7 +3,6 @@ package commands
 import (
 	"containerGO/internal/utils"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -22,7 +21,7 @@ func SetupDir(containerName string) error {
 	containerPath := filepath.Join(containerBaseDir, containerName)
 
 	if err := os.MkdirAll(containerPath, 0755); err != nil {
-		return fmt.Errorf("error while creating container directory: %v", err)
+		return fmt.Errorf("Error while creating container directory: %v", err)
 	}
 
 	overlayDirs := []string{"work", "merged", "upper"}
@@ -46,13 +45,13 @@ func Run(containerName, imageName string, commandArgs []string, bindMounts []str
 
 	srcPath := filepath.Join(utils.GetContainerBaseDir("Images"), imageName)
 	if ImageExists(srcPath) {
-		utils.Logger(color.FgHiBlue, "Image is already available")
+		utils.Logger(color.FgHiBlue, "✅ Image is already available")
 	} else {
 		PullImage(imageName)
 	}
 	destPath := filepath.Join(utils.GetContainerBaseDir("ExtractImages"), imageName)
 	if ImageExists(destPath) {
-		utils.Logger(color.FgHiBlue, "Image is already extracted")
+		utils.Logger(color.FgHiBlue, "✅ Image is already extracted")
 	} else {
 		ExtractRootFS(srcPath, destPath)
 	}
@@ -75,17 +74,17 @@ func Run(containerName, imageName string, commandArgs []string, bindMounts []str
 	// multiStdoutWriter := io.MultiWriter(os.Stdout, logFile) // Write to terminal & log
 	// multiStderrWriter := io.MultiWriter(os.Stderr, logFile)
 
-	multiWriter := io.MultiWriter(os.Stdout, logFile)
-	multiErrorWriter := io.MultiWriter(os.Stderr, logFile)
+	// multiWriter := io.MultiWriter(os.Stdout, logFile)
+	// multiErrorWriter := io.MultiWriter(os.Stderr, logFile)
 
 	cmd := exec.Command("/proc/self/exe", append([]string{"child", containerPath, imageName}, commandArgs...)...)
 
 	cmd.Stdin = os.Stdin
-	// cmd.Stdout = os.Stdout
-	// cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
 
-	cmd.Stdout = multiWriter
-	cmd.Stderr = multiErrorWriter
+	// cmd.Stdout = multiWriter
+	// cmd.Stderr = multiErrorWriter
 	// cmd.Stdout = stdoutPipeWriter
 	// cmd.Stderr = stderrPipeWriter
 	// cmd.Stdin = os.Stdin

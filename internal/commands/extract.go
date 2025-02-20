@@ -3,6 +3,7 @@ package commands
 import (
 	"archive/tar"
 	"compress/gzip"
+	"containerGO/internal/utils"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/containers/image/v5/oci/layout"
 	"github.com/containers/image/v5/types"
+	"github.com/fatih/color"
 	"github.com/opencontainers/go-digest"
 )
 
@@ -51,7 +53,8 @@ func ExtractRootFS(imagePath, extractTo string) error {
 	// Extract layers in correct order (Base → Latest)
 	for i := 0; i < len(manifest.Layers); i++ {
 		layer := manifest.Layers[i]
-		fmt.Println("Extracting layer:", layer.Digest)
+		// fmt.Println("Extracting layer:", layer.Digest)
+		utils.Logger(color.FgCyan, fmt.Sprintf("Extracting layer : %s", layer.Digest))
 
 		layerDigest := digest.Digest(layer.Digest)
 		layerReader, _, err := imgSrc.GetBlob(context.Background(), types.BlobInfo{Digest: layerDigest}, nil)
@@ -66,7 +69,8 @@ func ExtractRootFS(imagePath, extractTo string) error {
 		}
 	}
 
-	fmt.Println("Root filesystem extracted to:", extractTo)
+	utils.Logger(color.FgBlue, fmt.Sprintf("✅ Root Filesystem extracted to : %s", extractTo))
+	// fmt.Println("Root filesystem extracted to:", extractTo)
 	return nil
 }
 
@@ -77,7 +81,7 @@ func extractCompressedTar(reader io.Reader, dest string) error {
 	}
 	defer gzipReader.Close()
 
-	fmt.Println("Decompressing layer before extraction")
+	utils.Logger(color.FgCyan, "Decompressing layer before extraction")
 	return extractTar(gzipReader, dest)
 }
 

@@ -24,7 +24,7 @@ var extractCmd = &cobra.Command{
 			fmt.Println("Error extracting image:", err)
 			return
 		}
-		fmt.Println("Image extracted successfully!")
+		// fmt.Println("Image extracted successfully!")
 	},
 }
 
