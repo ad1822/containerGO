@@ -1,32 +1,0 @@
-[1;5H[1@l[1;6H[1;6H[1@s[1;7H[?25l[1;6H[K[34h[?25h[1;6H[?25l[1;5H[K[34h[?25h[1;5H[1;5H[1;5H[1@l[1;6H[1;6H[1@s[1;7H[?25l[1;6H[K[34h[?25h[1;6H[?25l[1;5H[K[34h[?25h[1;5H[1;5H[1;5H[1@l[1;6H[1;6H[1@s[1;7H[1;7H[1;1H
-[?2004l[?1l>Traceback (most recent call last):
-  File "<python-input-4>", line 1, in <module>
-    ls
-NameError: name 'ls' is not defined
-[?2004h[?1h=[?25l[1A
->>> [34h[?25h[1@1[1@+[1@2[7D
-[?2004l[?1l>3
-[?2004h[?1h=[?25l[1A
->>> [34h[?25h[1@e[1@x[1@i[1@t[8D
-[?2004l[?1l>✅ Container process started successfully! (PID: 1)
-OverlayFs mounted Successfully
-Command: [/usr/local/bin/python3]
-Python 3.13.2 (main, Feb  6 2025, 22:37:13) [GCC 12.2.0] on linux
-Type "help", "copyright", "credits" or "license" for more information.
-[?2004h[?1h=[?25l[1A
->>> [34h[?25h[1@e[1@x[1@i[1@t[8D
-[?2004l[?1l>✅ Container process started successfully! (PID: 1)
-OverlayFs mounted Successfully
-Command: [/usr/local/bin/python3]
-Python 3.13.2 (main, Feb  6 2025, 22:37:13) [GCC 12.2.0] on linux
-Type "help", "copyright", "credits" or "license" for more information.
-[?2004h[?1h=[?25l[1A
->>> [34h[?25h[1@l[1@s[6D
-[?2004l[?1l>Traceback (most recent call last):
-  File "<python-input-0>", line 1, in <module>
-    ls
-NameError: name 'ls' is not defined
-[?2004h[?1h=[?25l[1A
->>> [34h[?25h[1@c[1@l[1@e[1@a[1@r[9D
-[?2004l[?1l>[?2004h[?1h=[H[J[?25l[1;1H>>> [34h[?25h[1;5H[1;5H[1;5H[1;5H[1;5H[1;5H[1@e[1;6H[1;6H[1@x[1;7H[1;7H[1@i[1;8H[1;8H[1@t[1;9H[1;9H[1;1H
-[?2004l[?1l>
