@@ -16,6 +16,8 @@ jobs:
 
       - name: Setup Golang
         uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
 
       - name: Installing Dependencies
         uses: go mod tidy
