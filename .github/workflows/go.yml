@@ -21,6 +21,8 @@ jobs:
     #     uses: actions/setup-go@v5
 
     steps:
+      - uses: actions/setup-go@v5
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
