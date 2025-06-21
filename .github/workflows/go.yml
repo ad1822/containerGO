@@ -10,16 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    # steps:
-    #   - uses: actions/checkout@v4
-    #   - uses: actions/setup-go@v5
-
-    #   - name: Checkout code
-    #     uses: actions/checkout@v4
-
-    #   - name: Setup Golang
-    #     uses: actions/setup-go@v5
-
     steps:
       - uses: actions/setup-go@v5
 
@@ -34,7 +24,7 @@ jobs:
       - run: go -v
 
       - name: Installing Dependencies
-        uses: go mod tidy
+        run: go mod tidy
 
       - name: Format a Code
         run: gofmt -w .
