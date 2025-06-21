@@ -26,6 +26,16 @@ jobs:
 
       - name: Format a Code
         run: gofmt -w .
-
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgpgme-dev \
+            libbtrfs-dev \
+            libdevmapper-dev \
+            pkg-config \
+            libglib2.0-dev \
+            libseccomp-dev \
+            gcc
       - name: Build a code
         run: go build -o congo main.go
