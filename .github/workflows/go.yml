@@ -3,7 +3,7 @@ name: ci
 on:
   push:
     branches: [main]
-  pull:
+  pull_request:
     branches: [main]
 
 jobs:
@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Golang
         uses: actions/setup-go@v5
 
