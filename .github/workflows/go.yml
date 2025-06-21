@@ -1,0 +1,24 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Golang
+        uses: actions/setup-go@v5
+
+      - name: Installing Dependencies
+        uses: go mod tidy
+
+      - name: Format a Code
+        run: gofmt -w .
