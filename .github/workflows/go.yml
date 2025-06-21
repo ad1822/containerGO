@@ -20,19 +20,19 @@ jobs:
     #   - name: Setup Golang
     #     uses: actions/setup-go@v5
 
-    #   - name: Installing Dependencies
-    #     uses: go mod tidy
-
-    #   - name: Format a Code
-    #     run: gofmt -w .
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Go
         uses: actions/setup-go@v5
-
         with:
           go-version: '1.14'
           check-latest: true
       - run: go -v
+
+      - name: Installing Dependencies
+        uses: go mod tidy
+
+      - name: Format a Code
+        run: gofmt -w .
