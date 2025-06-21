@@ -10,17 +10,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # steps:
+    #   - uses: actions/checkout@v4
+    #   - uses: actions/setup-go@v5
+
+    #   - name: Checkout code
+    #     uses: actions/checkout@v4
+
+    #   - name: Setup Golang
+    #     uses: actions/setup-go@v5
+
+    #   - name: Installing Dependencies
+    #     uses: go mod tidy
+
+    #   - name: Format a Code
+    #     run: gofmt -w .
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Golang
-        uses: actions/setup-go@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
-
-      - name: Installing Dependencies
-        uses: go mod tidy
-
-      - name: Format a Code
-        run: gofmt -w .
+          go-version: '1.14'
+          check-latest: true
+      - run: go run hello.go
